@@ -45,6 +45,7 @@ Web3Function.onRun(async (context: Web3FunctionContext) => {
                 }
             } catch (e) {
                 console.log(`[${cfg.token}] | Swapping amount ${amount.toString()} failed: `, { error: e.error.body });
+                // this logs are usefull to simulate the tx in tenderly for example
                 console.log(e.transaction.to);
                 console.log(e.transaction.data);
             }
