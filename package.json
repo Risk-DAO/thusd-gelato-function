@@ -9,6 +9,8 @@
     "format:check": "prettier --check '*/**/*.{js,json,md,ts}'",
     "lint": "eslint --cache .",
     "test": "jest",
+    "debug:arbitrage": "npx w3f test web3-functions/arbitrage/index.ts --logs --chain-id=1",
+    "deploy:arbitrage": "npx w3f deploy web3-functions/arbitrage/index.ts",
     "create-task:event": "ts-node scripts/create-task-event-listener.ts",
     "create-task:oracle": "ts-node scripts/create-task-oracle.ts",
     "create-task:secrets": "ts-node scripts/create-task-with-secrets.ts",
