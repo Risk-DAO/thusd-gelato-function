@@ -2,8 +2,8 @@ import { Web3Function, Web3FunctionContext } from "@gelatonetwork/web3-functions
 import { Contract } from "@ethersproject/contracts";
 import { BigNumber, ethers } from 'ethers';
 
-const configs = [
-    {
+const configs = {
+    "BTC": {
         token: "BTC", // this is just for display
         decimals: 8,
         arbContractAddress: "0x176F6373d69274Bc6420edBd6050eCC9430CFC00",
@@ -16,7 +16,7 @@ const configs = [
         ],
         abi: [{ "inputs": [], "stateMutability": "nonpayable", "type": "constructor" }, { "inputs": [{ "internalType": "address", "name": "bamm", "type": "address" }], "name": "approve", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "btcQty", "type": "uint256" }, { "internalType": "address", "name": "bamm", "type": "address" }, { "internalType": "address", "name": "profitReceiver", "type": "address" }], "name": "swap", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "payable", "type": "function" }, { "inputs": [{ "internalType": "int256", "name": "amount0Delta", "type": "int256" }, { "internalType": "int256", "name": "amount1Delta", "type": "int256" }, { "internalType": "bytes", "name": "data", "type": "bytes" }], "name": "uniswapV3SwapCallback", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "stateMutability": "payable", "type": "receive" }]
     },
-    {
+    "ETH": {
         token: "ETH", // this is just for display
         decimals: 18,
         arbContractAddress: "0xFBEA9aAA9a822AEDd429fDAB3099A2DBA942f196",
@@ -29,34 +29,36 @@ const configs = [
             ],
         abi: [{ "inputs": [], "stateMutability": "nonpayable", "type": "constructor" }, { "inputs": [{ "internalType": "address", "name": "bamm", "type": "address" }], "name": "approve", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "ethQty", "type": "uint256" }, { "internalType": "address", "name": "bamm", "type": "address" }, { "internalType": "address payable", "name": "profitReceiver", "type": "address" }], "name": "swap", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "payable", "type": "function" }, { "inputs": [{ "internalType": "int256", "name": "amount0Delta", "type": "int256" }, { "internalType": "int256", "name": "amount1Delta", "type": "int256" }, { "internalType": "bytes", "name": "data", "type": "bytes" }], "name": "uniswapV3SwapCallback", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "stateMutability": "payable", "type": "receive" }]
     }
-]
+}
 
 Web3Function.onRun(async (context: Web3FunctionContext) => {
-    const { multiChainProvider } = context;
+    const { userArgs, multiChainProvider } = context;
 
-    for (const cfg of configs) {
-        const contract = new Contract(cfg.arbContractAddress, cfg.abi, multiChainProvider.default());
-        for (const amount of cfg.amounts) {
-            const amountNorm = ethers.utils.formatUnits(amount.toString(), cfg.decimals);
-            console.log(`[${cfg.token}] | Trying amount ${amountNorm} ${cfg.token}`);
-            try {
-                await contract.callStatic.swap(amount, cfg.bamm, cfg.profitReceiver);
-            console.log(`[${cfg.token}] | Trying amount ${amountNorm} ${cfg.token} success`);
-            // if no exception, return info for gelato to perform the swap
-                return {
-                    canExec: true,
-                    callData: [
-                        {
-                            to: cfg.arbContractAddress,
-                            data: contract.interface.encodeFunctionData("swap", [amount, cfg.bamm, cfg.profitReceiver])
-                        }]
-                }
-            } catch (e) {
-                console.log(`[${cfg.token}] | Swapping amount ${amountNorm} ${cfg.token} failed: `, { error: e.error.body });
-                // this logs are usefull to simulate the tx in tenderly for example
-                // console.log(e.transaction.to);
-                // console.log(e.transaction.data);
+    const token = userArgs.token as string;
+
+    const cfg = configs[token];
+
+    const contract = new Contract(cfg.arbContractAddress, cfg.abi, multiChainProvider.default());
+    for (const amount of cfg.amounts) {
+        const amountNorm = ethers.utils.formatUnits(amount.toString(), cfg.decimals);
+        console.log(`[${cfg.token}] | Trying amount ${amountNorm} ${cfg.token}`);
+        try {
+            await contract.callStatic.swap(amount, cfg.bamm, cfg.profitReceiver);
+        console.log(`[${cfg.token}] | Trying amount ${amountNorm} ${cfg.token} success`);
+        // if no exception, return info for gelato to perform the swap
+            return {
+                canExec: true,
+                callData: [
+                    {
+                        to: cfg.arbContractAddress,
+                        data: contract.interface.encodeFunctionData("swap", [amount, cfg.bamm, cfg.profitReceiver])
+                    }]
             }
+        } catch (e) {
+            console.log(`[${cfg.token}] | Swapping amount ${amountNorm} ${cfg.token} failed: `, { error: e.error.body });
+            // this logs are usefull to simulate the tx in tenderly for example
+            // console.log(e.transaction.to);
+            // console.log(e.transaction.data);
         }
     }
 
