@@ -6,7 +6,7 @@ const configs = {
     "BTC": {
         token: "BTC", // this is just for display
         decimals: 8,
-        arbContractAddress: "0x176F6373d69274Bc6420edBd6050eCC9430CFC00",
+        arbContractAddress: "0x067a0209C6e03F9A077d967e48B410b7Bf811Ec9",
         profitReceiver: "0x7095F0B91A1010c11820B4E263927835A4CF52c9",
         bamm: "0x920623AcBa785ED9a70d33ACab53631e1e834675",
         amounts: [
@@ -19,7 +19,7 @@ const configs = {
     "ETH": {
         token: "ETH", // this is just for display
         decimals: 18,
-        arbContractAddress: "0xFBEA9aAA9a822AEDd429fDAB3099A2DBA942f196",
+        arbContractAddress: "0xf4Bd4B8227F4EBB00c140df413306A4FA78542D6",
         profitReceiver: "0x7095F0B91A1010c11820B4E263927835A4CF52c9",
         bamm: "0x1f490764473eb1013461D6079F827DB95d8B4DC5",
         amounts: [
